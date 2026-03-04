@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FibAlert Pro — 24/7 Cloud Scanner</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=JetBrains+Mono:wght@300;400;600&family=Barlow+Condensed:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg0:#04070d;--bg1:#070d16;--bg2:#0a1220;--bg3:#0e1828;
+  --border:#162336;--border2:#1e3050;
+  --accent:#00c8ff;--green:#05e57a;--red:#ff2d55;--gold:#ffcc00;
+  --text:#d4e4f4;--text2:#5a7a96;--text3:#3a5a76;
+  --card:#080f1a;--radius:12px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg0);color:var(--text);font-family:'Barlow Condensed',sans-serif;min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.06) 2px,rgba(0,0,0,0.06) 4px);pointer-events:none;z-index:1000;opacity:.35;}
+.ambient{position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(ellipse 100% 50% at 20% 0%,rgba(0,200,255,.06) 0%,transparent 60%),radial-gradient(ellipse 80% 40% at 80% 100%,rgba(5,229,122,.04) 0%,transparent 60%);}
+
+/* HEADER */
+header{position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-content:space-between;padding:0 24px;height:60px;background:rgba(4,7,13,.97);border-bottom:1px solid var(--border);backdrop-filter:blur(16px);}
+.logo{display:flex;align-items:center;gap:12px;}
+.logo-mark{width:36px;height:36px;border-radius:9px;background:rgba(0,200,255,.1);border:1px solid rgba(0,200,255,.25);display:flex;align-items:center;justify-content:center;font-size:18px;}
+.logo h1{font-family:'Orbitron',sans-serif;font-size:16px;font-weight:900;letter-spacing:3px;background:linear-gradient(90deg,var(--accent),var(--green));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.logo p{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--text3);letter-spacing:3px;margin-top:2px;}
+.hbadge{display:flex;align-items:center;gap:6px;padding:4px 12px;background:rgba(5,229,122,.07);border:1px solid rgba(5,229,122,.2);border-radius:20px;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--green);letter-spacing:2px;}
+.hbadge .dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:blink 2s ease-in-out infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:.3;}}
+.hright{display:flex;align-items:center;gap:10px;}
+#clockEl{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text2);}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border:none;border-radius:8px;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:600;letter-spacing:1.5px;cursor:pointer;transition:all .18s;text-transform:uppercase;}
+.btn-p{background:rgba(0,200,255,.12);border:1px solid rgba(0,200,255,.35);color:var(--accent);}
+.btn-p:hover{background:rgba(0,200,255,.22);box-shadow:0 0 20px rgba(0,200,255,.2);}
+.btn-g{background:rgba(5,229,122,.1);border:1px solid rgba(5,229,122,.3);color:var(--green);}
+.btn-g:hover{background:rgba(5,229,122,.2);}
+.btn-g.spin{animation:scanGlow 1.2s ease-in-out infinite;}
+@keyframes scanGlow{0%,100%{box-shadow:0 0 8px rgba(5,229,122,.2);}50%{box-shadow:0 0 28px rgba(5,229,122,.5);}}
+.btn-ghost{background:transparent;border:1px solid var(--border2);color:var(--text2);}
+.btn-ghost:hover{border-color:var(--accent);color:var(--accent);}
+.btn-rm{background:transparent;border:1px solid rgba(255,45,85,.2);color:rgba(255,45,85,.5);padding:4px 9px;font-size:11px;border-radius:6px;}
+.btn-rm:hover{background:rgba(255,45,85,.15);color:var(--red);}
+
+/* TG STRIP */
+.tgstrip{position:relative;z-index:10;display:flex;align-items:center;gap:8px;padding:8px 24px;background:rgba(0,136,204,.06);border-bottom:1px solid rgba(0,136,204,.15);flex-wrap:wrap;}
+.tglabel{font-family:'JetBrains Mono',monospace;font-size:10px;color:#2499d4;letter-spacing:2px;white-space:nowrap;}
+.tgfield{flex:1;min-width:150px;max-width:290px;background:rgba(0,0,0,.4);border:1px solid var(--border2);border-radius:6px;padding:6px 11px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:11px;outline:none;transition:border .2s;}
+.tgfield:focus{border-color:#2499d4;}
+.tgfield::placeholder{color:var(--text3);}
+.tgbtn{padding:6px 14px;border-radius:6px;border:none;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:600;letter-spacing:1px;transition:all .2s;}
+.tgsave{background:rgba(36,153,212,.15);border:1px solid rgba(36,153,212,.4);color:#2499d4;}
+.tgsave:hover{background:rgba(36,153,212,.25);}
+.tgtest{background:rgba(5,229,122,.1);border:1px solid rgba(5,229,122,.3);color:var(--green);}
+.tgtest:hover{background:rgba(5,229,122,.2);}
+#tgmsg{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:1px;}
+
+/* MAIN */
+.main{position:relative;z-index:5;padding:22px 24px;max-width:1700px;margin:0 auto;}
+
+/* STATS */
+.statsbar{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:22px;}
+.stat{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px 18px;position:relative;overflow:hidden;}
+.stat::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--sc,var(--accent)),transparent);opacity:.5;}
+.slabel{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text3);letter-spacing:2.5px;text-transform:uppercase;margin-bottom:8px;}
+.snum{font-family:'Orbitron',sans-serif;font-size:28px;font-weight:700;line-height:1;}
+.ssub{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text3);margin-top:4px;}
+.ca{color:var(--accent);}.cg{color:var(--green);}.cr{color:var(--red);}.cgold{color:var(--gold);}
+
+/* TOOLBAR */
+.toolbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px;}
+.tleft{display:flex;align-items:center;gap:12px;}
+.seclabel{font-family:'Orbitron',sans-serif;font-size:11px;letter-spacing:3px;color:var(--text3);}
+.nextscan{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text2);display:flex;align-items:center;gap:5px;}
+.nextscan span{color:var(--accent);font-weight:600;}
+
+/* GRID */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(355px,1fr));gap:16px;margin-bottom:26px;}
+
+/* CARD */
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;transition:all .3s;}
+.card:hover{border-color:var(--border2);transform:translateY(-2px);box-shadow:0 8px 30px rgba(0,0,0,.4);}
+.card.up{border-top:2px solid var(--green);}
+.card.down{border-top:2px solid var(--red);}
+.card.neutral{border-top:2px solid var(--border2);}
+.card.ALERT{border-color:var(--gold)!important;box-shadow:0 0 0 1px rgba(255,204,0,.2),0 0 40px rgba(255,204,0,.15);animation:ap 2s ease-in-out infinite;}
+@keyframes ap{0%,100%{box-shadow:0 0 0 1px rgba(255,204,0,.2),0 0 30px rgba(255,204,0,.12);}50%{box-shadow:0 0 0 2px rgba(255,204,0,.4),0 0 60px rgba(255,204,0,.25);}}
+
+.ctop{display:flex;align-items:center;justify-content:space-between;padding:13px 15px 9px;}
+.casset{display:flex;align-items:center;gap:9px;}
+.cicon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;border:1px solid rgba(255,255,255,.06);}
+.csym{font-family:'Orbitron',sans-serif;font-size:12px;font-weight:700;letter-spacing:1px;line-height:1.2;}
+.ctype{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text3);letter-spacing:1.5px;margin-top:2px;}
+.cright{display:flex;align-items:center;gap:6px;}
+.tpill{display:flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:600;letter-spacing:1.5px;}
+.tup{background:rgba(5,229,122,.1);color:var(--green);border:1px solid rgba(5,229,122,.22);}
+.tdown{background:rgba(255,45,85,.1);color:var(--red);border:1px solid rgba(255,45,85,.22);}
+.tneut{background:rgba(255,255,255,.04);color:var(--text2);border:1px solid var(--border);}
+
+.cbody{padding:0 15px 15px;}
+.alertbanner{margin-bottom:11px;padding:9px 12px;background:linear-gradient(135deg,rgba(255,204,0,.1),rgba(255,165,0,.06));border:1px solid rgba(255,204,0,.35);border-radius:7px;display:flex;align-items:center;gap:9px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--gold);letter-spacing:.5px;}
+.fibmeta{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:9px;}
+.fibtag{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text2);background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:4px;padding:2px 7px;letter-spacing:.5px;}
+.pricerow{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:11px;}
+.pmain{font-family:'Orbitron',monospace;font-size:20px;font-weight:700;letter-spacing:1px;}
+.pchg{font-family:'JetBrains Mono',monospace;font-size:11px;}
+
+/* FIB TRACK */
+.trackwrap{margin:5px 0 13px;}
+.tracktop{display:flex;justify-content:space-between;margin-bottom:4px;}
+.tracklbl{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text3);}
+.tracklbl.gold{color:var(--gold);}
+.track{position:relative;height:30px;background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:7px;overflow:visible;}
+.fill{height:100%;border-radius:7px;transition:width 1s cubic-bezier(.4,0,.2,1);}
+.fill-up{background:linear-gradient(90deg,rgba(5,229,122,.06),rgba(5,229,122,.22));}
+.fill-down{background:linear-gradient(90deg,rgba(255,45,85,.22),rgba(255,45,85,.06));}
+.line50{position:absolute;top:-4px;bottom:-4px;left:50%;transform:translateX(-50%);width:2px;background:var(--gold);box-shadow:0 0 8px rgba(255,204,0,.6);border-radius:2px;}
+.line50::before{content:'50%';position:absolute;top:-15px;left:50%;transform:translateX(-50%);font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--gold);white-space:nowrap;}
+.needle{position:absolute;top:4px;bottom:4px;width:3px;border-radius:2px;transform:translateX(-50%);transition:left 1s cubic-bezier(.4,0,.2,1);}
+
+/* FIB BOXES */
+.fibboxes{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-bottom:9px;}
+.fbox{background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:5px;padding:5px 7px;text-align:center;}
+.fbox.hl{background:rgba(255,204,0,.08);border-color:rgba(255,204,0,.3);}
+.fbn{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--text3);margin-bottom:3px;}
+.fbox.hl .fbn{color:var(--gold);}
+.fbp{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;color:var(--text);}
+.fbox.hl .fbp{color:var(--gold);}
+.distrow{display:flex;align-items:center;justify-content:space-between;padding-top:7px;border-top:1px solid var(--border);}
+.dlabel{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text3);letter-spacing:.5px;}
+.dval{font-family:'Orbitron',monospace;font-size:11px;font-weight:700;}
+.dn{color:var(--gold);}.dm{color:#ff8c00;}.df{color:var(--text2);}
+
+/* SHIMMER */
+.shimmer{background:linear-gradient(90deg,var(--border) 0%,rgba(255,255,255,.04) 50%,var(--border) 100%);background-size:200% 100%;animation:sh 1.6s infinite;border-radius:5px;}
+@keyframes sh{0%{background-position:200%}100%{background-position:-200%}}
+
+/* LOG */
+.logsec{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;}
+.loghead{display:flex;align-items:center;justify-content:space-between;padding:13px 18px;border-bottom:1px solid var(--border);background:rgba(255,255,255,.015);}
+.logtitle{font-family:'Orbitron',sans-serif;font-size:11px;letter-spacing:3px;color:var(--text2);}
+.logbody{max-height:220px;overflow-y:auto;}
+.logrow{display:flex;align-items:center;gap:12px;padding:10px 18px;border-bottom:1px solid rgba(255,255,255,.02);transition:background .15s;}
+.logrow:hover{background:rgba(255,255,255,.02);}
+.ltime{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text3);white-space:nowrap;min-width:52px;}
+.lsym{font-family:'Orbitron',sans-serif;font-size:11px;font-weight:700;color:var(--accent);min-width:95px;}
+.ldir{font-family:'JetBrains Mono',monospace;font-size:10px;flex:1;color:var(--text);}
+.lbadge{padding:2px 7px;border-radius:10px;font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:1px;}
+.lbup{background:rgba(5,229,122,.1);color:var(--green);border:1px solid rgba(5,229,122,.2);}
+.lbdown{background:rgba(255,45,85,.1);color:var(--red);border:1px solid rgba(255,45,85,.2);}
+.lpx{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--gold);white-space:nowrap;}
+.logempty{text-align:center;padding:36px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text3);letter-spacing:1px;}
+
+/* MODAL */
+.overlay{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.87);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .22s;}
+.overlay.open{opacity:1;pointer-events:all;}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:16px;padding:28px;width:100%;max-width:450px;position:relative;transform:translateY(16px) scale(.97);transition:transform .22s;}
+.overlay.open .modal{transform:translateY(0) scale(1);}
+.mtitle{font-family:'Orbitron',sans-serif;font-size:13px;font-weight:700;letter-spacing:3px;color:var(--accent);margin-bottom:22px;}
+.frow{margin-bottom:14px;}
+.flbl{display:block;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:2.5px;color:var(--text3);text-transform:uppercase;margin-bottom:6px;}
+.fctrl{width:100%;background:rgba(0,0,0,.45);border:1px solid var(--border2);border-radius:7px;padding:9px 13px;color:var(--text);font-family:'Barlow Condensed',sans-serif;font-size:15px;outline:none;transition:border .2s;}
+.fctrl:focus{border-color:var(--accent);}
+.fctrl option{background:var(--bg2);}
+.fhint{margin-top:6px;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text3);line-height:1.8;}
+.mbtns{display:flex;gap:10px;margin-top:20px;}
+.mclose{position:absolute;top:13px;right:13px;background:none;border:none;color:var(--text2);font-size:17px;cursor:pointer;padding:4px 8px;border-radius:5px;font-family:'JetBrains Mono',monospace;}
+.mclose:hover{color:var(--text);}
+
+/* TOASTS */
+.toasts{position:fixed;top:76px;right:18px;z-index:300;display:flex;flex-direction:column;gap:9px;max-width:330px;}
+.toast{background:var(--bg2);border:1px solid rgba(255,204,0,.4);border-radius:11px;padding:14px 16px;box-shadow:0 0 40px rgba(255,204,0,.14);animation:tIn .3s cubic-bezier(.34,1.56,.64,1);position:relative;overflow:hidden;}
+.toast::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold),var(--accent));}
+@keyframes tIn{from{transform:translateX(110%);opacity:0;}to{transform:translateX(0);opacity:1;}}
+.thead{font-family:'Orbitron',sans-serif;font-size:11px;font-weight:700;color:var(--gold);letter-spacing:2px;margin-bottom:7px;}
+.tbody{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text);line-height:1.7;}
+
+/* EMPTY */
+.empty{grid-column:1/-1;text-align:center;padding:70px 20px;}
+.empty-icon{font-size:48px;margin-bottom:16px;}
+.empty-title{font-family:'Orbitron',sans-serif;font-size:14px;letter-spacing:3px;color:var(--text2);margin-bottom:8px;}
+.empty-sub{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text3);line-height:2;}
+
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
+
+@media(max-width:768px){
+  header{padding:0 12px;}
+  .main{padding:12px;}
+  .statsbar{grid-template-columns:repeat(2,1fr);}
+  .grid{grid-template-columns:1fr;}
+  .tgstrip{padding:8px 12px;}
+}
+</style>
+</head>
+<body>
+<div class="ambient"></div>
+
+<header>
+  <div class="logo">
+    <div class="logo-mark">📐</div>
+    <div>
+      <h1>FIBALERT PRO</h1>
+      <p>24/7 CLOUD FIBONACCI SCANNER</p>
+    </div>
+  </div>
+  <div class="hbadge"><div class="dot"></div>CLOUD LIVE</div>
+  <div class="hright">
+    <span id="clockEl"></span>
+    <button class="btn btn-ghost" onclick="openModal()">＋ ADD</button>
+    <button class="btn btn-g" id="scanBtn" onclick="triggerScan()">⚡ SCAN NOW</button>
+  </div>
+</header>
+
+<!-- TG STRIP -->
+<div class="tgstrip">
+  <span class="tglabel">📱 TELEGRAM</span>
+  <input class="tgfield" id="tgToken"  placeholder="Bot Token — from @BotFather">
+  <input class="tgfield" id="tgChat"   placeholder="Chat ID — from @userinfobot" style="max-width:190px">
+  <button class="tgbtn tgsave" onclick="saveTG()">SAVE</button>
+  <button class="tgbtn tgtest" onclick="testTG()">SEND TEST</button>
+  <span id="tgmsg"></span>
+</div>
+
+<div class="main">
+
+  <!-- STATS -->
+  <div class="statsbar">
+    <div class="stat" style="--sc:var(--accent)"><div class="slabel">Watching</div><div class="snum ca" id="sTotal">0</div><div class="ssub">assets</div></div>
+    <div class="stat" style="--sc:var(--green)"><div class="slabel">Uptrend</div><div class="snum cg" id="sUp">0</div><div class="ssub">4H bullish</div></div>
+    <div class="stat" style="--sc:var(--red)"><div class="slabel">Downtrend</div><div class="snum cr" id="sDown">0</div><div class="ssub">4H bearish</div></div>
+    <div class="stat" style="--sc:var(--gold)"><div class="slabel">Alerts</div><div class="snum cgold" id="sAlerts">0</div><div class="ssub">setups fired</div></div>
+  </div>
+
+  <!-- TOOLBAR -->
+  <div class="toolbar">
+    <div class="tleft"><div class="seclabel">Watchlist</div></div>
+    <div class="nextscan">AUTO-SCAN IN <span id="timerEl">120</span>s</div>
+  </div>
+
+  <!-- GRID -->
+  <div class="grid" id="grid">
+    <div class="empty"><div class="empty-icon">⏳</div><div class="empty-title">Loading Assets...</div><div class="empty-sub">Scanner is starting up...</div></div>
+  </div>
+
+  <!-- LOG -->
+  <div class="logsec">
+    <div class="loghead">
+      <div class="logtitle">Alert History</div>
+      <button class="btn btn-ghost" style="font-size:12px;padding:5px 11px" onclick="document.getElementById('logbody').innerHTML='<div class=logempty>Cleared.</div>'">Clear</button>
+    </div>
+    <div class="logbody" id="logbody"><div class="logempty">No alerts yet — cloud scanner is watching 24/7...</div></div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="overlay" id="modalOverlay">
+  <div class="modal">
+    <button class="mclose" onclick="closeModal()">✕</button>
+    <div class="mtitle">＋ Add Asset</div>
+    <div class="frow">
+      <label class="flbl">Asset Type</label>
+      <select class="fctrl" id="mType" onchange="refreshHint()">
+        <option value="stock">📈 Stock</option>
+        <option value="index">📊 Index</option>
+        <option value="forex">💱 Forex</option>
+        <option value="crypto">💰 Crypto</option>
+        <option value="currency">💵 Currency</option>
+        <option value="commodity">🛢️ Commodity</option>
+      </select>
+    </div>
+    <div class="frow">
+      <label class="flbl">Yahoo Finance Ticker</label>
+      <input class="fctrl" id="mTicker" placeholder="Enter ticker symbol" style="text-transform:uppercase">
+      <div class="fhint" id="mHint"></div>
+    </div>
+    <div class="frow">
+      <label class="flbl">Display Name</label>
+      <input class="fctrl" id="mName" placeholder="e.g. Gold, GBP/USD...">
+    </div>
+    <div class="mbtns">
+      <button class="btn btn-p" onclick="addAsset()" style="flex:1">Add to Watchlist</button>
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div class="toasts" id="toasts"></div>
+
+<script>
+const HINTS={
+  stock:'<b>NSE India:</b> RELIANCE.NS · TCS.NS<br><b>US:</b> AAPL · MSFT · TSLA',
+  index:'<b>India:</b> ^NSEI · ^NSEBANK<br><b>US:</b> ^GSPC · ^IXIC · ^DJI<br><b>Global:</b> ^FTSE · ^GDAXI',
+  forex:'GBPUSD=X · EURUSD=X · USDJPY=X<br>AUDUSD=X · USDCAD=X',
+  crypto:'BTC-USD · ETH-USD · SOL-USD · BNB-USD',
+  currency:'DX-Y.NYB · JPY=X · USDINR=X · GBPINR=X',
+  commodity:'GC=F (Gold) · SI=F (Silver) · CL=F (Crude)<br>NG=F (Nat Gas) · PL=F (Platinum)',
+};
+const META={
+  stock:{icon:'📈',bg:'#0d1e2e',ac:'#00c8ff'},
+  index:{icon:'📊',bg:'#0d162e',ac:'#7b68ff'},
+  forex:{icon:'💱',bg:'#0a1e18',ac:'#05e57a'},
+  crypto:{icon:'💰',bg:'#1e1408',ac:'#ff9500'},
+  currency:{icon:'💵',bg:'#0e1e10',ac:'#34d399'},
+  commodity:{icon:'🛢️',bg:'#1e0f08',ac:'#ff6b35'},
+};
+
+let countdown=30, knownAlerts=new Set(), lastLogCount=0;
+
+// ── CLOCK ──
+setInterval(()=>{ document.getElementById('clockEl').textContent=new Date().toLocaleTimeString(); },1000);
+
+// ── MODAL ──
+function openModal(){document.getElementById('modalOverlay').classList.add('open');refreshHint();}
+function closeModal(){document.getElementById('modalOverlay').classList.remove('open');}
+function refreshHint(){document.getElementById('mHint').innerHTML=HINTS[document.getElementById('mType').value]||'';}
+document.addEventListener('DOMContentLoaded',()=>{
+  refreshHint();
+  document.getElementById('modalOverlay').addEventListener('click',e=>{if(e.target.id==='modalOverlay')closeModal();});
+  document.getElementById('mTicker').addEventListener('input',function(){this.value=this.value.toUpperCase();});
+});
+
+// ── TELEGRAM ──
+function saveTG(){
+  const token=document.getElementById('tgToken').value.trim();
+  const chatId=document.getElementById('tgChat').value.trim();
+  fetch('/api/save_telegram',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token,chat_id:chatId})});
+  showTGMsg('✅ Saved!','var(--green)');
+}
+async function testTG(){
+  saveTG();
+  const token=document.getElementById('tgToken').value.trim();
+  const chatId=document.getElementById('tgChat').value.trim();
+  if(!token||!chatId){showTGMsg('❌ Enter token & chat ID first','var(--red)');return;}
+  showTGMsg('⏳ Sending...','var(--gold)');
+  const r=await fetch('/api/test_telegram',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token,chat_id:chatId})});
+  const d=await r.json();
+  showTGMsg(d.ok?'✅ Message sent! Check Telegram.':'❌ Failed — check token & chat ID', d.ok?'var(--green)':'var(--red)');
+}
+function showTGMsg(m,c){const el=document.getElementById('tgmsg');el.textContent=m;el.style.color=c;setTimeout(()=>el.textContent='',4000);}
+
+// ── ADD / REMOVE ASSET ──
+async function addAsset(){
+  const ticker=document.getElementById('mTicker').value.trim().toUpperCase();
+  const name=document.getElementById('mName').value.trim()||ticker;
+  const type=document.getElementById('mType').value;
+  if(!ticker){alert('Enter a ticker symbol.');return;}
+  const r=await fetch('/api/add_asset',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({ticker,name,type})});
+  const d=await r.json();
+  if(!d.ok){alert(d.error||'Error');return;}
+  closeModal();
+  document.getElementById('mTicker').value='';
+  document.getElementById('mName').value='';
+  fetchAndRender();
+}
+async function removeAsset(ticker){
+  await fetch('/api/remove_asset',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({ticker})});
+  fetchAndRender();
+}
+
+// ── SCAN NOW ──
+async function triggerScan(){
+  const btn=document.getElementById('scanBtn');
+  btn.classList.add('spin'); btn.textContent='⏳ SCANNING...';
+  await fetch('/api/scan_now',{method:'POST'});
+  setTimeout(()=>{btn.classList.remove('spin');btn.textContent='⚡ SCAN NOW';fetchAndRender();},4000);
+  countdown=120;
+}
+
+// ── RENDER ASSETS ──
+async function fetchAndRender(){
+  try{
+    const [ar,sr,lr]=await Promise.all([fetch('/api/assets'),fetch('/api/stats'),fetch('/api/alerts')]);
+    const assets=await ar.json();
+    const stats=await sr.json();
+    const logs=await lr.json();
+    renderStats(stats);
+    renderGrid(assets);
+    renderLog(logs);
+  }catch(e){console.error(e);}
+}
+
+function renderStats(s){
+  document.getElementById('sTotal').textContent=s.total;
+  document.getElementById('sUp').textContent=s.up;
+  document.getElementById('sDown').textContent=s.down;
+  document.getElementById('sAlerts').textContent=s.alerts;
+}
+
+function renderGrid(assets){
+  const g=document.getElementById('grid');
+  if(!assets.length){
+    g.innerHTML='<div class="empty"><div class="empty-icon">📐</div><div class="empty-title">No Assets</div><div class="empty-sub">Click ADD to add assets.</div></div>';
+    return;
+  }
+  g.innerHTML=assets.map(a=>cardHTML(a)).join('');
+}
+
+function cardHTML(a){
+  const m=META[a.type]||META.stock;
+  const tc=a.trend==='up'?'up':a.trend==='down'?'down':'neutral';
+  const alertCls=a.alert?'ALERT':'';
+  const tpill=a.trend==='up'?'<span class="tpill tup">▲ UP</span>':a.trend==='down'?'<span class="tpill tdown">▼ DOWN</span>':'<span class="tpill tneut">SCANNING</span>';
+
+  let body='';
+  if(!a.fib50||a.fib50==='—'){
+    body=`<div class="cbody">
+      <div class="shimmer" style="height:20px;width:50%;margin-bottom:9px"></div>
+      <div class="shimmer" style="height:30px;width:100%;margin-bottom:9px"></div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:4px">${[0,1,2,3].map(()=>'<div class="shimmer" style="height:42px"></div>').join('')}</div>
+    </div>`;
+  } else {
+    const chgColor=a.price_change>=0?'var(--green)':'var(--red)';
+    const chgSign=a.price_change>=0?'+':'';
+    const fillCls=a.trend==='up'?'fill-up':'fill-down';
+    const needleColor=a.trend==='up'?'var(--green)':'var(--red)';
+    const distCls=a.dist_pct===null?'df':a.dist_pct<1?'dn':a.dist_pct<3?'dm':'df';
+    const nearLabel=a.dist_pct!==null&&a.dist_pct<1?' 🔥':a.dist_pct!==null&&a.dist_pct<3?' ⚠️':'';
+    const alertBanner=a.alert?`<div class="alertbanner"><span style="font-size:17px">🚨</span><span>${a.trend==='up'?'Price pulled DOWN to 50% Fib — Uptrend Setup!':'Price bounced UP to 50% Fib — Downtrend Setup!'}</span></div>`:'';
+    const scanTime=a.last_scan?`<span class="fibtag">Scanned ${a.last_scan}</span>`:'';
+
+    body=`<div class="cbody">
+      ${alertBanner}
+      <div class="fibmeta">
+        <span class="fibtag">4H: ${a.trend?a.trend.toUpperCase():'—'}</span>
+        <span class="fibtag">H: ${a.swing_high}</span>
+        <span class="fibtag">L: ${a.swing_low}</span>
+        <span class="fibtag">15M 1D</span>
+        ${scanTime}
+      </div>
+      <div class="pricerow">
+        <div class="pmain" style="color:${m.ac}">${a.price}</div>
+        <div class="pchg" style="color:${chgColor}">${chgSign}${a.price_change}%</div>
+      </div>
+      <div class="trackwrap">
+        <div class="tracktop">
+          <span class="tracklbl">${a.trend==='up'?'LOW 0%':'HIGH 0%'}</span>
+          <span class="tracklbl gold">— 50% TARGET —</span>
+          <span class="tracklbl">${a.trend==='up'?'HIGH 100%':'LOW 100%'}</span>
+        </div>
+        <div class="track">
+          <div class="fill ${fillCls}" style="width:${a.pct_on_bar}%"></div>
+          <div class="line50"></div>
+          <div class="needle" style="left:${a.pct_on_bar}%;background:${needleColor};box-shadow:0 0 8px ${needleColor}"></div>
+        </div>
+      </div>
+      <div class="fibboxes">
+        <div class="fbox"><div class="fbn">0%</div><div class="fbp">${a.f0}</div></div>
+        <div class="fbox"><div class="fbn">38.2%</div><div class="fbp">${a.f382}</div></div>
+        <div class="fbox hl"><div class="fbn">50% ★</div><div class="fbp">${a.fib50}</div></div>
+        <div class="fbox"><div class="fbn">61.8%</div><div class="fbp">${a.f618}</div></div>
+      </div>
+      <div class="distrow">
+        <span class="dlabel">Distance from 50% Fib</span>
+        <span class="dval ${distCls}">${a.dist_pct!==null?a.dist_pct+'%':'—'}${nearLabel}</span>
+      </div>
+    </div>`;
+  }
+
+  return `<div class="card ${tc} ${alertCls}">
+    <div class="ctop">
+      <div class="casset">
+        <div class="cicon" style="background:${m.bg}">${m.icon}</div>
+        <div>
+          <div class="csym" style="color:${m.ac}">${a.name}</div>
+          <div class="ctype">${a.ticker} · ${a.type.toUpperCase()}</div>
+        </div>
+      </div>
+      <div class="cright">${tpill}<button class="btn-rm" onclick="removeAsset('${a.ticker}')">✕</button></div>
+    </div>
+    ${body}
+  </div>`;
+}
+
+function renderLog(logs){
+  const b=document.getElementById('logbody');
+  if(!logs.length){b.innerHTML='<div class="logempty">No alerts yet — cloud scanner is watching 24/7...</div>';return;}
+  // Check for new alerts → show toast
+  logs.forEach(l=>{
+    const key=l.time+l.ticker;
+    if(!knownAlerts.has(key)){
+      knownAlerts.add(key);
+      if(knownAlerts.size>1) showToast(l); // skip first load
+    }
+  });
+  b.innerHTML=logs.map(l=>`
+    <div class="logrow">
+      <span class="ltime">${l.time}</span>
+      <span class="lsym">${l.ticker}</span>
+      <span class="ldir">${l.trend==='up'?'Pullback to 50% (Uptrend)':'Bounce to 50% (Downtrend)'}</span>
+      <span class="lbadge ${l.trend==='up'?'lbup':'lbdown'}">${l.trend==='up'?'▲ UP':'▼ DOWN'}</span>
+      <span class="lpx">${l.price}</span>
+    </div>`).join('');
+}
+
+function showToast(l){
+  const c=document.getElementById('toasts');
+  const d=document.createElement('div');
+  d.className='toast';
+  d.innerHTML=`<div class="thead">🚨 SETUP TRIGGERED</div>
+    <div class="tbody"><b style="color:var(--accent)">${l.name}</b> (${l.ticker})<br>
+    ${l.trend==='up'?'📉 Price pulled DOWN to 50% Fib':'📈 Price bounced UP to 50% Fib'}<br>
+    Price: <b style="color:var(--gold)">${l.price}</b> → 50% Fib: <b style="color:var(--gold)">${l.fib50}</b></div>`;
+  c.appendChild(d);
+  setTimeout(()=>d.remove(),9000);
+}
+
+// ── AUTO POLL ──
+function startPolling(){
+  setInterval(()=>{
+    countdown--;
+    document.getElementById('timerEl').textContent=Math.max(0,countdown);
+    if(countdown<=0){countdown=120;fetchAndRender();}
+  },1000);
+  // Poll API every 15s for new alerts
+  setInterval(fetchAndRender, 15000);
+}
+
+// ── INIT ──
+document.addEventListener('DOMContentLoaded',()=>{
+  fetchAndRender();
+  startPolling();
+});
+</script>
+</body>
+</html>

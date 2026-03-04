@@ -1,0 +1,146 @@
+# FibAlert Pro — 24/7 Cloud Setup Guide
+# Follow every step carefully. Takes about 10–15 minutes total.
+
+==============================================================
+STEP 1 — CREATE A GITHUB ACCOUNT
+==============================================================
+
+1. Go to https://github.com
+2. Click "Sign up"
+3. Enter your email, create a password, choose a username
+4. Verify your email
+5. You now have a GitHub account ✅
+
+
+==============================================================
+STEP 2 — UPLOAD YOUR PROJECT FILES TO GITHUB
+==============================================================
+
+1. Go to https://github.com → click the "+" icon (top right) → "New repository"
+
+2. Fill in:
+   - Repository name: fibalert-pro
+   - Description: Fibonacci Trading Alert Scanner
+   - Select: Public
+   - Check: "Add a README file"
+   - Click "Create repository"
+
+3. Now upload the files. In your new repository page:
+   - Click "Add file" → "Upload files"
+   - Upload ALL 4 files:
+       app.py
+       requirements.txt
+       render.yaml
+       (for the templates folder: click "Add file" → "Create new file"
+        type:  templates/index.html
+        then paste the contents of index.html)
+   - Click "Commit changes"
+
+Your code is now on GitHub ✅
+
+
+==============================================================
+STEP 3 — CREATE A FREE RENDER ACCOUNT
+==============================================================
+
+1. Go to https://render.com
+2. Click "Get Started for Free"
+3. Sign up with your GitHub account (easiest)
+4. Authorize Render to access GitHub
+
+
+==============================================================
+STEP 4 — DEPLOY YOUR APP ON RENDER
+==============================================================
+
+1. On Render dashboard → click "New +" → "Web Service"
+
+2. Connect your GitHub repo:
+   - Click "Connect" next to "fibalert-pro"
+
+3. Fill in the settings:
+   - Name:          fibalert-pro
+   - Region:        Singapore (closest for India) or any
+   - Branch:        main
+   - Build Command: pip install -r requirements.txt
+   - Start Command: gunicorn app:app --workers 1 --timeout 120
+   - Plan:          FREE
+
+4. Scroll down to "Environment Variables" → Add these:
+   - Key: TG_TOKEN    → Value: (your Telegram bot token)
+   - Key: TG_CHAT_ID  → Value: (your Telegram chat ID)
+
+5. Click "Create Web Service"
+
+6. Wait 2–3 minutes for it to build and deploy.
+
+7. Render will give you a URL like:
+   https://fibalert-pro.onrender.com
+
+Open that URL — your scanner is live 24/7! ✅
+
+
+==============================================================
+STEP 5 — TEST YOUR TELEGRAM ALERTS
+==============================================================
+
+1. Open your Render URL in browser
+2. Enter your Telegram Bot Token and Chat ID in the top bar
+3. Click "SAVE" then "SEND TEST"
+4. You should receive a message on Telegram ✅
+
+Because this is now running on a proper https:// server,
+Telegram will work perfectly with no CORS issues.
+
+
+==============================================================
+STEP 6 — KEEP IT RUNNING 24/7 (IMPORTANT!)
+==============================================================
+
+Render's free plan "sleeps" after 15 minutes of no visitors.
+To keep it awake 24/7 for free:
+
+Option A — UptimeRobot (Recommended, Free):
+1. Go to https://uptimerobot.com
+2. Sign up for free
+3. Add New Monitor:
+   - Monitor Type: HTTP(s)
+   - Friendly Name: FibAlert Pro
+   - URL: https://fibalert-pro.onrender.com
+   - Monitoring Interval: Every 5 minutes
+4. Click "Create Monitor"
+This pings your app every 5 minutes so it never sleeps. ✅
+
+Option B — Upgrade Render to $7/month plan (always on)
+
+
+==============================================================
+SUMMARY — What You Now Have
+==============================================================
+
+✅ Cloud scanner running 24/7
+✅ Scans GBP/USD, EUR/USD, JPY, Gold, Silver, Crude, Nat Gas
+✅ 4H trend + 15M Fibonacci strategy
+✅ Alerts when price approaches 50% Fib from correct direction
+✅ Instant Telegram message on your phone
+✅ Add any stock/forex/crypto/commodity from the dashboard
+✅ Works even when your PC and phone are off
+
+
+==============================================================
+TROUBLESHOOTING
+==============================================================
+
+Problem: App not loading on Render
+Fix: Wait 5 minutes after deploy, check Render logs for errors
+
+Problem: Telegram test says "Failed"
+Fix: Make sure you pressed START on your bot in Telegram first
+     Then re-enter token + chat ID and click SAVE → SEND TEST
+
+Problem: App sleeps / stops scanning
+Fix: Set up UptimeRobot as described in Step 6
+
+Problem: No price data for an asset
+Fix: Double-check the Yahoo Finance ticker symbol at:
+     https://finance.yahoo.com (search for the asset)

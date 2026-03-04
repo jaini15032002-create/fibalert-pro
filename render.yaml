@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: fibalert-pro
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app --workers 1 --timeout 120
+    envVars:
+      - key: TG_TOKEN
+        value: ""
+      - key: TG_CHAT_ID
+        value: ""
